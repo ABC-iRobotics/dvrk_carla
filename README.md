@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # dvrk_carla
 
 ## CARLA Simulatior intergation for the da Vinci Research Kit
@@ -12,6 +11,4 @@ The Arduino programs use the [rosserial_arduino](http://wiki.ros.org/rosserial_a
 After the program is loaded onto the board, the following node has to be launched to publish data to the ROS environment:
 
     rosrun rosserial_python serial_node.py /dev/ttyUSB0
-=======
-# dvrk_carla
->>>>>>> parent of a46e728... Initial commit
+
