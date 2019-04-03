@@ -171,7 +171,7 @@ class dvrk_steering_wheel:
           gains_r.TorqueOrientation.x = 0.0
           gains_r.TorqueOrientation.y = numpy.cos(steer_angle_r/2.0)
           gains_r.TorqueOrientation.z = 0.0
-          gains_r.TorqueOrientationvvvvvvvv.w = numpy.sin(steer_angle_r/2.0)
+          gains_r.TorqueOrientation.w = numpy.sin(steer_angle_r/2.0)
 
           #angle_diff = (steer_angle_l-steer_angle_r)-numpy.pi
           steer_angle_l_rel = 0.0
