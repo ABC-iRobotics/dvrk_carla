@@ -9,7 +9,7 @@ ros::NodeHandle  nh;
 
 
 std_msgs::Float32 gas_msg;
-ros::Publisher pub_gas("gas", &gas_msg);
+ros::Publisher pub_gas("/dvrk_carla/control/pedal_gas", &gas_msg);
 
 
 int offset1, offset2;

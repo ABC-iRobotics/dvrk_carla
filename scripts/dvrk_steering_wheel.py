@@ -9,6 +9,7 @@ import PyKDL
 import threading
 from sensor_msgs.msg import Joy
 from cisst_msgs.msg import prmCartesianImpedanceGains
+from std_msgs.msg import Float32
 
 # example of application using arm.py
 class dvrk_steering_wheel:
@@ -22,7 +23,10 @@ class dvrk_steering_wheel:
         self.set_gains_r_pub = rospy.Publisher(self.arm_r._arm__full_ros_namespace + '/set_cartesian_impedance_gains',
                                              prmCartesianImpedanceGains, latch = True, queue_size = 1)
         self.set_gains_l_pub = rospy.Publisher(self.arm_l._arm__full_ros_namespace + '/set_cartesian_impedance_gains',
-                                                                                  prmCartesianImpedanceGains, latch = True, queue_size = 1)
+                                             prmCartesianImpedanceGains, latch = True, queue_size = 1)
+        self.wheel_pub = rospy.Publisher('/dvrk_carla/control/wheel',
+                                             Float32, latch = True, queue_size = 1)
+
 
     def home(self, arm):
         print rospy.get_caller_id(), ' -> starting home'
@@ -67,6 +71,8 @@ class dvrk_steering_wheel:
         center_l = numpy.array([center_r[0] + x_offset, center_r[1], center_r[2]])
         
         couple_f = 20.0
+
+        wheel_multiplier = 1.0 / 180.0
 
         gains_l.PosStiffNeg.y = -400.0;
         gains_l.PosStiffPos.y = -400.0;
@@ -200,6 +206,10 @@ class dvrk_steering_wheel:
 
           self.set_gains_l_pub.publish(gains_l)
           self.set_gains_r_pub.publish(gains_r)
+
+          wheel_msg = Float32()
+          wheel_msg.data = numpy.rad2deg(steer_angle_l_rel) * wheel_multiplier
+          self.wheel_pub.publish(wheel_msg)
 
 
           rate.sleep()
