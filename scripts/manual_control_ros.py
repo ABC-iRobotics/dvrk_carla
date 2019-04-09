@@ -707,7 +707,7 @@ class ROSControl(object):
         rospy.init_node('simulator', anonymous=True)
         #rospy.Subscriber("dvrk/MTML/state_joint_current", JointState, self.state_callback)
         rospy.Subscriber("/dvrk_carla/control/wheel", Float32, self.wheel_callback)
-        rospy.Subscriber('/dvrk/footpedals/coag', Joy, self.wheel_callback)
+        rospy.Subscriber('/dvrk_carla/control/pedal_gas', Float32, self.pedal_gas_callback)
         
         if isinstance(world.player, carla.Vehicle):
             self._control = control
@@ -715,8 +715,8 @@ class ROSControl(object):
     def wheel_callback(self, msg):
         self._control.steer = -msg.data * 2.5
         
-    def coag_callback(self, msg):
-        self._control.throttle = data.buttons[0]
+    def pedal_gas_callback(self, msg):
+        self._control.throttle = msg.data
 
     def state_callback(self, data):
         controls = dict(zip(data.name, data.position))
