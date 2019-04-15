@@ -44,6 +44,14 @@ class dvrk_steering_wheel:
     def wait_for_coag(self):
         self.coag_event.clear()
         self.coag_event.wait(600)
+        
+    def quaternion_multiply(self, quaternion1, quaternion0):
+        w0, x0, y0, z0 = quaternion0
+        w1, x1, y1, z1 = quaternion1
+        return numpy.array([-x1 * x0 - y1 * y0 - z1 * z0 + w1 * w0,
+                     x1 * w0 + y1 * z0 - z1 * y0 + w1 * x0,
+                     -x1 * z0 + y1 * w0 + z1 * x0 + w1 * y0,
+                     x1 * y0 - y1 * x0 + z1 * w0 + w1 * z0], dtype=numpy.float64)
 
 
     def do_wheel_things(self):
@@ -63,6 +71,11 @@ class dvrk_steering_wheel:
         x_offset = 0.35
         currpos_l = self.arm_l.get_current_position()
         currpos_r = self.arm_r.get_current_position()
+        orientationQuaternion_l = self.arm_l.get_current_position().M.GetQuaternion()
+        orientationQuaternion_r = self.arm_r.get_current_position().M.GetQuaternion()
+        base_ori_l = numpy.array([orientationQuaternion_l[0], orientationQuaternion_l[1], orientationQuaternion_l[2], orientationQuaternion_l[3]])
+        
+        base_ori_r = numpy.array([orientationQuaternion_r[0], orientationQuaternion_r[1], orientationQuaternion_r[2], orientationQuaternion_r[3]])
 		
         center_r = numpy.array([(currpos_l.p[0] + currpos_r.p[0] - x_offset) / 2.0, (currpos_l.p[1] + currpos_r.p[1]) / 2.0, (currpos_l.p[2] + currpos_r.p[2]) / 2.0])
        
@@ -106,7 +119,7 @@ class dvrk_steering_wheel:
         gains_r.PosDampingNeg.x = -10.0;
         gains_r.PosDampingPos.x = -10.0;
 
-        stiffOri = -0.2;
+        stiffOri = -1;
         dampOri = -0.01;
         gains_l.OriStiffNeg.x = stiffOri;
         gains_l.OriStiffPos.x = stiffOri;
@@ -140,6 +153,7 @@ class dvrk_steering_wheel:
         gains_r.ForcePosition.y = self.arm_r.get_current_position().p[1]
 
         rate = rospy.Rate(100) # 10hz
+        i = 0
         while not rospy.is_shutdown():
           #print rospy.get_caller_id(), ' -> Refresh gains'
           currpos_l = self.arm_l.get_current_position()
@@ -168,16 +182,23 @@ class dvrk_steering_wheel:
           gains_r.ForceOrientation.y = numpy.cos(steer_angle_r/2.0)
           gains_r.ForceOrientation.z = 0.0
           gains_r.ForceOrientation.w = numpy.sin(steer_angle_r/2.0)
+          
+          
+          steer_ori_r = numpy.array([0.0, numpy.cos(steer_angle_r/2.0), 0.0, numpy.sin(steer_angle_r/2.0)])
+          steer_ori_l = numpy.array([0.0, numpy.cos(steer_angle_l/2.0), 0.0, numpy.sin(steer_angle_l/2.0)])
+          
+          torque_ori_r = self.quaternion_multiply(base_ori_r, steer_ori_r)
+          torque_ori_l = self.quaternion_multiply(base_ori_l, steer_ori_l)
+    
+          gains_l.TorqueOrientation.x = torque_ori_l[0]
+          gains_l.TorqueOrientation.y = torque_ori_l[1]
+          gains_l.TorqueOrientation.z = torque_ori_l[2]
+          gains_l.TorqueOrientation.w = torque_ori_l[3]
 
-          gains_l.TorqueOrientation.x = 0.0
-          gains_l.TorqueOrientation.y = numpy.cos(steer_angle_l/2.0)
-          gains_l.TorqueOrientation.z = 0.0
-          gains_l.TorqueOrientation.w = numpy.sin(steer_angle_l/2.0)
-
-          gains_r.TorqueOrientation.x = 0.0
-          gains_r.TorqueOrientation.y = numpy.cos(steer_angle_r/2.0)
-          gains_r.TorqueOrientation.z = 0.0
-          gains_r.TorqueOrientation.w = numpy.sin(steer_angle_r/2.0)
+          gains_r.TorqueOrientation.x = torque_ori_r[0]
+          gains_r.TorqueOrientation.y = torque_ori_r[1]
+          gains_r.TorqueOrientation.z = torque_ori_r[2]
+          gains_r.TorqueOrientation.w = torque_ori_r[3]
 
           #angle_diff = (steer_angle_l-steer_angle_r)-numpy.pi
           steer_angle_l_rel = 0.0
@@ -203,15 +224,17 @@ class dvrk_steering_wheel:
             gains_r.ForceBiasPos.z = -couple_f * angle_diff
             gains_r.ForceBiasNeg.z = -couple_f * angle_diff
 
-
-          self.set_gains_l_pub.publish(gains_l)
-          self.set_gains_r_pub.publish(gains_r)
+          if i==0:
+            self.set_gains_l_pub.publish(gains_l)
+            self.set_gains_r_pub.publish(gains_r)
+            i = i + 1
 
           wheel_msg = Float32()
           wheel_msg.data = numpy.rad2deg(steer_angle_l_rel) * wheel_multiplier
           self.wheel_pub.publish(wheel_msg)
-
-
+          
+          self.arm_l.unlock_orientation()
+          self.arm_r.unlock_orientation()
           rate.sleep()
 
 

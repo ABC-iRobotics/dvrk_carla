@@ -5,7 +5,7 @@ import math
 import sys
 import rospy
 import numpy
-import PyKDL
+#import PyKDL
 import threading
 from sensor_msgs.msg import Joy
 from cisst_msgs.msg import prmCartesianImpedanceGains
