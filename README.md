@@ -94,4 +94,4 @@ Then launch the dvrk_steering_wheel.py script by:
 
     rosrun dvrk_carla dvrk_steering_wheel.py MTML MTMR
     
-Move the handles to a comfortable position, and press COAG pedal. The simulation is ready to usage.
+Move the handles to a comfortable position, and press COAG to fix wheel position. After this step the simulator is ready!
