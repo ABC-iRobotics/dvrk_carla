@@ -78,7 +78,7 @@ Then export path to CARLA Python API package located in CARLA folder, e. g.:
 
 And start the `manual_control_ros.py` script.
 
-## Usage of the DVRK with steerin wheel
+## Usage of the DVRK with steering wheel
 
 Wheel segments, attachable to the MTMs can be printed using the STL file in the models folder. 
 
