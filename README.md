@@ -68,11 +68,23 @@ After the program is loaded onto the board, the following node has to be launche
 
 ## Usage of CARLA control script
 
-Follow [Getting started|https://carla.readthedocs.io/en/latest/getting_started/] page of CARLA documentation to the point of starting the simulator with:
+You will need to download the latest release of CARLA from their [GitHub page](https://github.com/carla-simulator/carla/blob/master/Docs/download.md). Extract the archive to a folder of your choice. Home folder of current user is used in the examples below.
+
+Next install Pygame and Numpy Python packages if you don not have them installed yet. On Ubuntu, it can be done with:
+
+    sudo apt install python-pygame python-numpy
+
+On other distributions you may consider installing it via pip only for current user:
+
+    pip install --user pygame numpy
+
+In a terminal window, switch the current directory to the path you extracted CARLA to and start the simulator with:
 
     ./CarlaUE4.sh
 
-Then export path to CARLA Python API package located in CARLA folder, e. g.:
+If you run into any problems during this step and to get more familiar with CARLA you may want to consult [Getting started](https://carla.readthedocs.io/en/latest/getting_started/) page of CARLA documentation this section was loosely based on.
+
+To start control script which can be used with dVRK, export path to CARLA Python API package located in CARLA folder, e. g.:
 
     export PYTHONPATH=$PYTHONPATH:~/CARLA_0.9.3/PythonAPI/carla-0.9.3-py2.7-linux-x86_64.egg
 
