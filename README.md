@@ -72,7 +72,7 @@ The following guide is based on the [official install guide](https://carla.readt
     sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/lib/llvm-7/bin/clang++ 170
     sudo update-alternatives --install /usr/bin/clang clang /usr/lib/llvm-7/bin/clang 170
 
-
+Registration is necessary to access the UnrealEngine repository in GitHub, follow [these instructions](https://www.unrealengine.com/en-US/ue4-on-github)
 
 ## Usage of the Arduino programs
 
