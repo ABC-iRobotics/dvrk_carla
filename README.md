@@ -72,7 +72,12 @@ The following guide is based on the [official install guide](https://carla.readt
     sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/lib/llvm-7/bin/clang++ 170
     sudo update-alternatives --install /usr/bin/clang clang /usr/lib/llvm-7/bin/clang 170
 
-Registration is necessary to access the UnrealEngine repository in GitHub, follow [these instructions](https://www.unrealengine.com/en-US/ue4-on-github)
+Registration is necessary to access the UnrealEngine repository in GitHub, follow [these instructions](https://www.unrealengine.com/en-US/ue4-on-github). After the registration is complete:
+
+    git clone --depth=1 -b 4.22 https://github.com/EpicGames/UnrealEngine.git ~/UnrealEngine_4.22
+    cd ~/UnrealEngine_4.22
+    ./Setup.sh && ./GenerateProjectFiles.sh && make
+
 
 ## Usage of the Arduino programs
 
