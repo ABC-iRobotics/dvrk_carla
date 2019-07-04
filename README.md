@@ -77,6 +77,14 @@ Registration is necessary to access the UnrealEngine repository in GitHub, follo
     git clone --depth=1 -b 4.22 https://github.com/EpicGames/UnrealEngine.git ~/UnrealEngine_4.22
     cd ~/UnrealEngine_4.22
     ./Setup.sh && ./GenerateProjectFiles.sh && make
+    ./Update.sh
+    export UE4_ROOT=~/UnrealEngine_4.22
+    
+    make launch     # Compiles the simulator and launches Unreal Engine's Editor.
+    make PythonAPI  # Compiles the PythonAPI module necessary for running the Python examples.
+    make package    # Compiles everything and creates a packaged version able to run without UE4 editor.
+    make help       # Print all available commands.
+
 
 
 ## Usage of the Arduino programs
