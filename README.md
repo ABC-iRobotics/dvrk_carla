@@ -84,6 +84,12 @@ Registration is necessary to access the UnrealEngine repository in GitHub, follo
     make PythonAPI  # Compiles the PythonAPI module necessary for running the Python examples.
     make package    # Compiles everything and creates a packaged version able to run without UE4 editor.
     make help       # Print all available commands.
+    
+    pip install --user pygame numpy
+    
+To launch CARLA:
+
+   ./CarlaUE4.sh
 
 
 
