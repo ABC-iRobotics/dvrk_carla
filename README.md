@@ -89,7 +89,8 @@ Registration is necessary to access the UnrealEngine repository in GitHub, follo
     
 To launch CARLA:
 
-   ./CarlaUE4.sh
+    cd ~/carla/Dist/<VESRION/LinuxNoEditor
+    DISPLAY= ./CarlaUE4.sh -opengl -quality-level=Low
 
 
 
