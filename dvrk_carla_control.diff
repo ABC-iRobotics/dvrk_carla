@@ -1,0 +1,89 @@
+diff --git a/home/nekit/CARLA/CARLA_0.9.6/PythonAPI/examples/manual_control.py b/scripts/manual_control_ros.py
+index 238bc46..48655fa 100755
+--- a/home/nekit/CARLA/CARLA_0.9.6/PythonAPI/examples/manual_control.py
++++ b/scripts/manual_control_ros.py
+@@ -119,6 +119,11 @@ try:
+ except ImportError:
+     raise RuntimeError('cannot import numpy, make sure numpy package is installed')
+ 
++import rospy
++from std_msgs.msg import String
++from std_msgs.msg import Float32
++from geometry_msgs.msg import PoseStamped
++from sensor_msgs.msg import JointState
+ 
+ # ==============================================================================
+ # -- Global functions ----------------------------------------------------------
+@@ -334,7 +339,7 @@ class KeyboardControl(object):
+             world.player.apply_control(self._control)
+ 
+     def _parse_vehicle_keys(self, keys, milliseconds):
+-        self._control.throttle = 1.0 if keys[K_UP] or keys[K_w] else 0.0
++        #self._control.throttle = 1.0 if keys[K_UP] or keys[K_w] else 0.0
+         steer_increment = 5e-4 * milliseconds
+         if keys[K_LEFT] or keys[K_a]:
+             self._steer_cache -= steer_increment
+@@ -343,7 +348,7 @@ class KeyboardControl(object):
+         else:
+             self._steer_cache = 0.0
+         self._steer_cache = min(0.7, max(-0.7, self._steer_cache))
+-        self._control.steer = round(self._steer_cache, 1)
++        #self._control.steer = round(self._steer_cache, 1)
+         self._control.brake = 1.0 if keys[K_DOWN] or keys[K_s] else 0.0
+         self._control.hand_brake = keys[K_SPACE]
+ 
+@@ -670,7 +675,7 @@ class CameraManager(object):
+         bound_y = 0.5 + self._parent.bounding_box.extent.y
+         Attachment = carla.AttachmentType
+         self._camera_transforms = [
+-            (carla.Transform(carla.Location(x=-5.5, z=2.5), carla.Rotation(pitch=8.0)), Attachment.SpringArm),
++            (carla.Transform(carla.Location(x=-5.5, z=2.8), carla.Rotation(pitch=8.0)), Attachment.SpringArm),
+             (carla.Transform(carla.Location(x=1.6, z=1.7)), Attachment.Rigid),
+             (carla.Transform(carla.Location(x=5.5, y=1.5, z=1.5)), Attachment.SpringArm),
+             (carla.Transform(carla.Location(x=-8.0, z=6.0), carla.Rotation(pitch=6.0)), Attachment.SpringArm),
+@@ -763,6 +768,28 @@ class CameraManager(object):
+         if self.recording:
+             image.save_to_disk('_out/%08d' % image.frame)
+ 
++class ROSControl(object):
++    def __init__(self, world, control):
++        rospy.init_node('simulator', anonymous=True)
++        #rospy.Subscriber("dvrk/MTML/state_joint_current", JointState, self.state_callback)
++        rospy.Subscriber("/dvrk_carla/control/wheel", Float32, self.wheel_callback)
++        rospy.Subscriber('/dvrk_carla/control/pedal_gas', Float32, self.pedal_gas_callback)
++        
++        if isinstance(world.player, carla.Vehicle):
++            self._control = control
++
++    def wheel_callback(self, msg):
++        self._control.steer = -msg.data * 2.5
++        
++    def pedal_gas_callback(self, msg):
++        self._control.throttle = msg.data
++
++    def state_callback(self, data):
++        controls = dict(zip(data.name, data.position))
++        value = controls['wrist_roll'] / 7
++        self._steer_cache = min(0.7, max(-0.7, value))
++        self._control.steer = round(self._steer_cache, 1)
++        print('Steer: {}, value: {}'.format(self._control.steer, value))
+ 
+ # ==============================================================================
+ # -- game_loop() ---------------------------------------------------------------
+@@ -785,12 +812,16 @@ def game_loop(args):
+         hud = HUD(args.width, args.height)
+         world = World(client.get_world(), hud, args)
+         controller = KeyboardControl(world, args.autopilot)
++        ros_controller = ROSControl(world, controller._control)
+ 
+         clock = pygame.time.Clock()
+         while True:
+             clock.tick_busy_loop(60)
+             if controller.parse_events(client, world, clock):
+                 return
++            # Plug in the control from ROS here
++            
++            
+             world.tick(clock)
+             world.render(display)
+             pygame.display.flip()
