@@ -101,6 +101,22 @@ The Arduino programs use the [rosserial_arduino](http://wiki.ros.org/rosserial_a
 After the program is loaded onto the board, the following node has to be launched to publish data to the ROS environment:
 
     rosrun rosserial_python serial_node.py /dev/ttyUSB0
+    
+    
+## Generate sounds
+
+The alarms are generated using the sound_play ROS package. Install it using:
+
+    sudo apt install ros-kinetic-sound-play
+    
+The soundplay server can be started by
+
+    rosrun sound_play soundplay_node.py
+    
+The test code can be launched by
+
+    rosrun dvrk_carla play_sound_test.py
+
 
 ## Usage of CARLA control script
 
