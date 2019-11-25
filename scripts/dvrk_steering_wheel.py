@@ -17,9 +17,10 @@ class dvrk_steering_wheel:
     def configure(self, robot_name_l, robot_name_r):
         self.arm_l = dvrk.mtm(robot_name_l)
         self.arm_r = dvrk.mtm(robot_name_r)
-        self.coag_event = threading.Event()
-        rospy.Subscriber('/dvrk/footpedals/coag',
-                         Joy, self.coag_event_cb)
+        self.camera_event = threading.Event()
+        self.abort = False
+        rospy.Subscriber('/dvrk/footpedals/camera',
+                         Joy, self.camera_event_cb)
         self.set_gains_r_pub = rospy.Publisher(self.arm_r._arm__full_ros_namespace + '/set_cartesian_impedance_gains',
                                              prmCartesianImpedanceGains, latch = True, queue_size = 1)
         self.set_gains_l_pub = rospy.Publisher(self.arm_l._arm__full_ros_namespace + '/set_cartesian_impedance_gains',
@@ -37,13 +38,16 @@ class dvrk_steering_wheel:
         goal.fill(0)
         arm.move_joint(goal, interpolate = True)
 
-    def coag_event_cb(self, data):
+    def camera_event_cb(self, data):
+        print rospy.get_caller_id(), ' -> c1'
         if (data.buttons[0] == 1):
-            self.coag_event.set()
+            print rospy.get_caller_id(), ' -> c2'
+            self.abort = True
+            self.camera_event.set()
 
-    def wait_for_coag(self):
-        self.coag_event.clear()
-        self.coag_event.wait(600)
+    def wait_for_camera(self):
+        self.camera_event.clear()
+        self.camera_event.wait(600)
         
     def quaternion_multiply(self, quaternion1, quaternion0):
         x0, y0, z0, w0  = quaternion0
@@ -65,8 +69,8 @@ class dvrk_steering_wheel:
         self.arm_l.lock_orientation_as_is()
         self.arm_r.lock_orientation_as_is()
 		
-        print rospy.get_caller_id(), ' -> press COAG pedal to set straight position'
-        self.wait_for_coag()
+        print rospy.get_caller_id(), ' -> press CAMERA pedal to set straight position'
+        self.wait_for_camera()
         #radius = 0.12
         x_offset = 0.35
         currpos_l = self.arm_l.get_current_position()
@@ -156,7 +160,8 @@ class dvrk_steering_wheel:
         rate = rospy.Rate(100) # 10hz
         self.arm_l.unlock_orientation()
         self.arm_r.unlock_orientation()
-        while not rospy.is_shutdown():
+        self.abort = False
+        while not (rospy.is_shutdown() or self.abort):
           #print rospy.get_caller_id(), ' -> Refresh gains'
           currpos_l = self.arm_l.get_current_position()
           currpos_r = self.arm_r.get_current_position()
@@ -246,6 +251,12 @@ class dvrk_steering_wheel:
           
           
           rate.sleep()
+
+        #Finally
+        print rospy.get_caller_id(), ' -> Aborted by pressing the CAMERA pedal'
+        self.arm_l.move(self.arm_l.get_desired_position())
+        self.arm_r.move(self.arm_r.get_desired_position())
+
 
 
 
