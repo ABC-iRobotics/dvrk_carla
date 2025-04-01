@@ -154,8 +154,8 @@ Launch the DVRK console with the two MTMs and foot pedals using the proper JSON 
 
     rosrun dvrk_robot dvrk_console_json -j <path_to_JSON_files>/console-MTMR-MTML-pedals.json
     
-Then launch the dvrk_steering_wheel.py script by:
+Then launch the `dvrk_steering_wheel.py` script by:
 
     rosrun dvrk_carla dvrk_steering_wheel.py MTML MTMR
     
-Move the handles to a comfortable position, and press COAG to fix wheel position. After this step the simulator is ready!
+Move the handles to a comfortable position, and press `COAG` to fix wheel position. After this step the simulator is ready!
