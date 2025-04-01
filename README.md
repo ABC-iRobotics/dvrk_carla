@@ -6,7 +6,7 @@ This ROS-based package makes possible to use the [CARLA Simulator](http://carla.
 
 ## Setup envionment
 
-The solution is tested on Ubuntu 16.04 LTS with ROS Kinetic [recommended by dVRK](https://github.com/jhu-dvrk/sawIntuitiveResearchKit/wiki/Development-Environment) from October 2017, so this platform is encouraged. The building process can be performed using catkin build tools for ROS (so use `catkin build`, but you should never `catkin_make`) by the following steps.
+The solution is tested on ROS Kinetic. The building process can be performed using catkin build tools for ROS (so use `catkin build`, but you should never `catkin_make`) by the following steps.
 
 ### Install ROS Kinetic
 
